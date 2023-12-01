@@ -1,4 +1,7 @@
-use core::{fmt, ptr::write_volatile};
+use core::{
+    fmt::{self, Write},
+    ptr::write_volatile,
+};
 
 use lazy_static::lazy_static;
 use spin::Mutex;
@@ -99,4 +102,8 @@ impl Writer {
             };
         }
     }
+}
+
+pub fn _print(args: fmt::Arguments) {
+    WRITER.lock().write_fmt(args).unwrap();
 }

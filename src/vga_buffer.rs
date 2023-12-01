@@ -4,6 +4,8 @@ use core::fmt::Write;
 
 pub use writer::*;
 
+use crate::println;
+
 #[allow(dead_code)]
 #[repr(u8)]
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
@@ -54,4 +56,8 @@ pub(crate) fn _print_some_test_string() {
     write!(WRITER.lock(), "World").unwrap();
     WRITER.lock().write_byte(b'\n');
     write!(WRITER.lock(), "The numbers are {} and {}", 42, 1.0 / 3.0).unwrap();
+
+    println!();
+    println!();
+    println!("this is output by println");
 }
