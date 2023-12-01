@@ -1,5 +1,7 @@
 mod writer;
 
+use core::fmt::Write;
+
 pub use writer::*;
 
 #[allow(dead_code)]
@@ -47,14 +49,9 @@ pub struct Buffer {
 }
 
 pub(crate) fn _print_some_test_string() {
-    let vga_buffer = 0xb8000 as *mut Buffer;
-    let mut writer = Writer {
-        col_pos: 0,
-        color_code: ColorCode::new(Color::Yellow as u8, Color::Black as u8),
-        buffer: unsafe { &mut *vga_buffer },
-    };
-
-    writer.write_byte(b'H');
-    writer.write_str("ello, ");
-    writer.write_str("World!");
+    WRITER.lock().write_byte(b'H');
+    WRITER.lock().write_string("ello, ");
+    write!(WRITER.lock(), "World").unwrap();
+    WRITER.lock().write_byte(b'\n');
+    write!(WRITER.lock(), "The numbers are {} and {}", 42, 1.0 / 3.0).unwrap();
 }
