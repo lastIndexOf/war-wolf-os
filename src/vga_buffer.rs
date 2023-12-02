@@ -1,10 +1,6 @@
-mod writer;
-
-use core::fmt::Write;
+pub mod writer;
 
 pub use writer::*;
-
-use crate::println;
 
 #[allow(dead_code)]
 #[repr(u8)]
@@ -48,16 +44,4 @@ pub struct ScreenChar {
 #[repr(transparent)]
 pub struct Buffer {
     chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
-}
-
-pub(crate) fn _print_some_test_string() {
-    WRITER.lock().write_byte(b'H');
-    WRITER.lock().write_string("ello, ");
-    write!(WRITER.lock(), "World").unwrap();
-    WRITER.lock().write_byte(b'\n');
-    write!(WRITER.lock(), "The numbers are {} and {}", 42, 1.0 / 3.0).unwrap();
-
-    println!();
-    println!();
-    println!("this is output by println");
 }

@@ -104,6 +104,7 @@ impl Writer {
     }
 }
 
+#[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
     WRITER.lock().write_fmt(args).unwrap();
 }
