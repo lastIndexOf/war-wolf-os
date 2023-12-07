@@ -8,9 +8,9 @@ pub enum QemuExitCode {
 
 #[cfg(test)]
 pub fn test_runner(tests: &[&dyn Fn()]) {
-    use crate::println;
+    use crate::{println, serial_println};
 
-    println!("running {} tests", tests.len());
+    serial_println!("running {} tests", tests.len());
 
     for test in tests {
         test();
@@ -19,7 +19,7 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
     _exit_qemu(QemuExitCode::Success);
 }
 
-fn _exit_qemu(exit_code: QemuExitCode) {
+pub fn _exit_qemu(exit_code: QemuExitCode) {
     use x86_64::instructions::port::Port;
 
     // isa-debug-exit Exit设备的端口

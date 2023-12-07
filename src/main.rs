@@ -6,6 +6,7 @@
 
 mod macros;
 mod panic;
+mod serial;
 mod tests;
 mod vga_buffer;
 
@@ -23,5 +24,14 @@ pub extern "C" fn _start() -> ! {
 
 #[test_case]
 fn first_test_case() {
+    serial_print!("in first_test_case... ");
     assert_eq!(1, 1);
+    serial_println!("[ok]");
+}
+
+#[test_case]
+fn error_test_case() {
+    serial_print!("in error_test_case... ");
+    assert_eq!(0, 1);
+    serial_println!("[ok]");
 }
