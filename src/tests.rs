@@ -1,3 +1,7 @@
+pub trait Testable {
+    fn run(&self);
+}
+
 #[allow(unused)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -6,14 +10,27 @@ pub enum QemuExitCode {
     Failed = 0x11,
 }
 
+impl<T> Testable for T
+where
+    T: Fn(),
+{
+    fn run(&self) {
+        use crate::{serial_print, serial_println};
+
+        serial_print!("running {}... ", core::any::type_name::<T>());
+        self();
+        serial_println!("[ok]");
+    }
+}
+
 #[cfg(test)]
-pub fn test_runner(tests: &[&dyn Fn()]) {
+pub fn test_runner(tests: &[&dyn Testable]) {
     use crate::{println, serial_println};
 
     serial_println!("running {} tests", tests.len());
 
     for test in tests {
-        test();
+        test.run();
     }
 
     _exit_qemu(QemuExitCode::Success);
