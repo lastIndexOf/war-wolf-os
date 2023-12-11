@@ -23,19 +23,6 @@ where
     }
 }
 
-#[cfg(test)]
-pub fn test_runner(tests: &[&dyn Testable]) {
-    use crate::{println, serial_println};
-
-    serial_println!("running {} tests", tests.len());
-
-    for test in tests {
-        test.run();
-    }
-
-    _exit_qemu(QemuExitCode::Success);
-}
-
 pub fn _exit_qemu(exit_code: QemuExitCode) {
     use x86_64::instructions::port::Port;
 

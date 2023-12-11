@@ -2,7 +2,6 @@ pub mod writer;
 
 pub use writer::*;
 
-#[allow(dead_code)]
 #[repr(u8)]
 #[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum Color {
@@ -37,11 +36,11 @@ impl ColorCode {
 #[derive(Debug, Copy, PartialEq, Eq, Clone)]
 #[repr(C)]
 pub struct ScreenChar {
-    ascii_code: u8,
+    pub ascii_code: u8,
     color_code: ColorCode,
 }
 
 #[repr(transparent)]
 pub struct Buffer {
-    chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
+    pub chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }

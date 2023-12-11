@@ -1,14 +1,19 @@
 #![feature(custom_test_frameworks)]
-#![test_runner(crate::tests::test_runner)]
+#![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "_test_main"]
 #![no_std]
 #![no_main]
 
-mod macros;
 mod panic;
-mod serial;
-mod tests;
-mod vga_buffer;
+
+#[cfg(not(test))]
+use wolf_os::println;
+
+#[cfg(test)]
+use wolf_os::{
+    println, serial_println,
+    tests::{QemuExitCode, Testable, _exit_qemu},
+};
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
@@ -22,12 +27,13 @@ pub extern "C" fn _start() -> ! {
     loop {}
 }
 
-#[test_case]
-fn first_test_case() {
-    assert_eq!(1, 1);
-}
+#[cfg(test)]
+pub fn test_runner(tests: &[&dyn Testable]) {
+    serial_println!("running {} tests", tests.len());
 
-#[test_case]
-fn error_test_case() {
-    assert_eq!(1, 1);
+    for test in tests {
+        test.run();
+    }
+
+    _exit_qemu(QemuExitCode::Success);
 }

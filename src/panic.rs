@@ -3,7 +3,7 @@ use core::panic::PanicInfo;
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    use crate::println;
+    use wolf_os::println;
 
     println!("{}", info);
     loop {}
@@ -12,7 +12,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    use crate::{
+    use wolf_os::{
         serial_println,
         tests::{QemuExitCode, _exit_qemu},
     };

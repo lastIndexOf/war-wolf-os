@@ -108,3 +108,31 @@ impl Writer {
 pub fn _print(args: fmt::Arguments) {
     WRITER.lock().write_fmt(args).unwrap();
 }
+
+#[cfg(test)]
+mod test_vga_buffer {
+    use super::*;
+    use crate::println;
+    use core::ptr::read_volatile;
+
+    #[test_case]
+    fn test_print_lots_of_things_in_stdout() {
+        for _ in 0..200 {
+            println!("test_print_lots_of_things_in_stdout");
+        }
+    }
+
+    #[test_case]
+    fn test_correct_output_in_stdout() {
+        let output = "stdout should show this line";
+        println!("{output}");
+
+        for (i, c) in output.chars().enumerate() {
+            let screen_char: ScreenChar = unsafe {
+                read_volatile(&WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i] as *const _)
+            };
+
+            assert_eq!(char::from(screen_char.ascii_code), c);
+        }
+    }
+}
