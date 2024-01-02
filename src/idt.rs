@@ -30,4 +30,37 @@
 ///
 ///
 // 这个库里已经实现了 x86_64 的中断描述符表(IDT)，我们不需要单独再定义了
-use x86_64;
+
+/// in x86_64;
+/// pub struct InterruptDescriptorTable {
+///     pub divide_error: Entry<HandlerFunc>,
+///     pub debug: Entry<HandlerFunc>,
+///     pub non_maskable_interrupt: Entry<HandlerFunc>,
+///     pub breakpoint: Entry<HandlerFunc>,
+///     pub overflow: Entry<HandlerFunc>,
+///     pub bound_range_exceeded: Entry<HandlerFunc>,
+///     pub invalid_opcode: Entry<HandlerFunc>,
+///     pub device_not_available: Entry<HandlerFunc>,
+///     pub double_fault: Entry<DivergingHandlerFuncWithErrCode>,
+///     coprocessor_segment_overrun: Entry<HandlerFunc>,
+///     pub invalid_tss: Entry<HandlerFuncWithErrCode>,
+///     pub segment_not_present: Entry<HandlerFuncWithErrCode>,
+///     pub stack_segment_fault: Entry<HandlerFuncWithErrCode>,
+///     pub general_protection_fault: Entry<HandlerFuncWithErrCode>,
+///     pub page_fault: Entry<PageFaultHandlerFunc>,
+///     reserved_1: Entry<HandlerFunc>,
+///     pub x87_floating_point: Entry<HandlerFunc>,
+///     pub alignment_check: Entry<HandlerFuncWithErrCode>,
+///     pub machine_check: Entry<DivergingHandlerFunc>,
+///     pub simd_floating_point: Entry<HandlerFunc>,
+///     pub virtualization: Entry<HandlerFunc>,
+///     pub cp_protection_exception: Entry<HandlerFuncWithErrCode>,
+///     reserved_2: [Entry<HandlerFunc>; 6],
+///     pub hv_injection_exception: Entry<HandlerFunc>,
+///     pub vmm_communication_exception: Entry<HandlerFuncWithErrCode>,
+///     pub security_exception: Entry<HandlerFuncWithErrCode>,
+///     reserved_3: Entry<HandlerFunc>,
+///     interrupts: [Entry<HandlerFunc>; 256 - 32],
+/// }
+
+
