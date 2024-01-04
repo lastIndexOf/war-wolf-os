@@ -62,5 +62,28 @@
 ///     reserved_3: Entry<HandlerFunc>,
 ///     interrupts: [Entry<HandlerFunc>; 256 - 32],
 /// }
+// "x86-interrupt" 调用
+// 它可以保证在函数返回时，寄存器里的值均返回原样。
+// extern "x86-interrupt" fn();
+use lazy_static::lazy_static;
+use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
+use crate::println;
 
+lazy_static! {
+    pub static ref IDT: InterruptDescriptorTable = {
+        let mut idt = InterruptDescriptorTable::new();
+        idt.breakpoint.set_handler_fn(breakpoint_handler);
+        idt
+    };
+}
+
+extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
+    println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
+}
+
+#[test_case]
+fn test_breakpoint_exception() {
+    // invoke a breakpoint exception
+    x86_64::instructions::interrupts::int3();
+}
