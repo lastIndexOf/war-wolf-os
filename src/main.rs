@@ -21,6 +21,10 @@ pub extern "C" fn _start() -> ! {
 
     println!("System initialized!");
 
+    unsafe {
+        *(0xdeadbeef as *mut u8) = 12;
+    }
+
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用
     #[cfg(test)]

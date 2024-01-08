@@ -73,7 +73,10 @@ use crate::println;
 lazy_static! {
     pub static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
+        // 不注册处理函数，又触发了对应的错误时触发的是 general protection fault
         idt.breakpoint.set_handler_fn(breakpoint_handler);
+        // 如果不设置 double fault，x86_64 会在 double fault 时触发 triple fault，导致系统重启。
+        idt.double_fault.set_handler_fn(double_fault_handler);
         idt
     };
 }
@@ -82,8 +85,20 @@ extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
     println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
 }
 
-#[test_case]
-fn test_breakpoint_exception() {
-    // invoke a breakpoint exception
-    x86_64::instructions::interrupts::int3();
+extern "x86-interrupt" fn double_fault_handler(
+    stack_frame: InterruptStackFrame,
+    _error_code: u64,
+) -> ! {
+    println!("EXCEPTION: DOUBLE FAULT\n{:#?},", stack_frame);
+
+    loop {}
+}
+
+#[cfg(test)]
+mod test_interrupt_descriptor_table {
+    #[test_case]
+    fn test_breakpoint_exception() {
+        // invoke a breakpoint exception
+        x86_64::instructions::interrupts::int3();
+    }
 }
