@@ -23,7 +23,15 @@ lazy_static! {
     };
 }
 
-pub fn update_segment_registers() {
+pub fn init() {
+    // 初始化全局描述符表
+    GDT.0.load();
+    // 载入 gdt 后，手动修改全局段寄存器的状态，因为载入 gdt 不会更新那些段寄存器的状态，需要手动更新
+    // 通过切换中断栈帧，解决 stack overflow 后会导致 double fault 也无法正常入栈的问题
+    update_segment_registers();
+}
+
+fn update_segment_registers() {
     unsafe {
         x86_64::instructions::segmentation::CS::set_reg(GDT.1.code_selector);
         x86_64::instructions::tables::load_tss(GDT.1.tss_selector);

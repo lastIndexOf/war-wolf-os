@@ -21,11 +21,7 @@ use core::panic::PanicInfo;
 
 // 初始化操作
 pub fn init() {
-    // 初始化全局描述符表
-    interrupts::gdt::GDT.0.load();
-    // 载入 gdt 后，手动修改全局段寄存器的状态，因为载入 gdt 不会更新那些段寄存器的状态，需要手动更新
-    // 通过切换中断栈帧，解决 stack overflow 后会导致 double fault 也无法正常入栈的问题
-    interrupts::gdt::update_segment_registers();
+    interrupts::gdt::init();
 
     // 初始化中断描述符表
     interrupts::idt::IDT.load();
