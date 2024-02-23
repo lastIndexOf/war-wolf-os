@@ -106,7 +106,14 @@ impl Writer {
 
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments) {
-    WRITER.lock().write_fmt(args).unwrap();
+    // fix dead lock
+    // enter interrupt when Mutex locked
+    // and interrupt handler need acquire Mutex lock
+    // will cause dead lock
+
+    x86_64::instructions::interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
 
 #[cfg(test)]

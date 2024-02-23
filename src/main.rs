@@ -26,7 +26,11 @@ pub extern "C" fn _start() -> ! {
     #[cfg(test)]
     _test_main();
 
-    loop {}
+    loop {
+        use wolf_os::print;
+
+        print!("-");
+    }
 }
 
 #[cfg(test)]
