@@ -68,19 +68,33 @@
 use lazy_static::lazy_static;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
-use crate::{interrupts::tss::DEFAULT_DOUBLE_FAULT_STACK_INDEX, println};
+use crate::{
+    interrupts::{
+        pic::{HardwareInterruptIndex, PIC},
+        tss::DEFAULT_DOUBLE_FAULT_STACK_INDEX,
+    },
+    print, println,
+};
 
 // 不注册处理函数，又触发了对应的错误时触发的是 general protection fault
 // 如果不设置 double fault，x86_64 会在 double fault 时触发 triple fault，导致系统重启。
+// breakpoint fault interrupt handler
+// double fault interrupt handler
+// real time clock hardware interrupt handler
 lazy_static! {
     pub static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
         idt.breakpoint.set_handler_fn(breakpoint_handler);
+
         unsafe {
             idt.double_fault
                 .set_handler_fn(double_fault_handler)
                 .set_stack_index(DEFAULT_DOUBLE_FAULT_STACK_INDEX as u16);
         };
+
+        idt[HardwareInterruptIndex::RealTimerClock.as_usize()]
+            .set_handler_fn(real_time_clock_interrupt_handler);
+
         idt
     };
 }
@@ -96,6 +110,15 @@ extern "x86-interrupt" fn double_fault_handler(
     println!("EXCEPTION: DOUBLE FAULT\n{:#?},", stack_frame);
 
     loop {}
+}
+
+extern "x86-interrupt" fn real_time_clock_interrupt_handler(_stack_frame: InterruptStackFrame) {
+    print!(".");
+
+    unsafe {
+        PIC.lock()
+            .notify_end_of_interrupt(HardwareInterruptIndex::RealTimerClock.as_u8());
+    };
 }
 
 #[cfg(test)]

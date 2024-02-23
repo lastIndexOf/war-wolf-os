@@ -25,6 +25,9 @@ pub fn init() {
 
     // 初始化中断描述符表
     interrupts::idt::IDT.load();
+
+    // 初始化可变成中断控制器（PIC）
+    interrupts::pic::init();
 }
 
 pub fn test_runner(tests: &[&dyn Testable]) {
