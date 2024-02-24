@@ -4,7 +4,7 @@
 #![test_runner(wolf_os::test_runner)]
 #![reexport_test_harness_main = "_test_main"]
 
-use core::{panic::PanicInfo, ptr::read_volatile};
+use core::{ops::Deref, panic::PanicInfo, ptr::read_volatile};
 
 use wolf_os::{
     println,
@@ -25,13 +25,18 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[test_case]
 fn test_correct_output_in_stdout_at_basic_boot() {
+    use core::fmt::Write;
+
     let output = "stdout should show this line";
-    println!("{output}");
+    x86_64::instructions::interrupts::without_interrupts(|| {
+        let mut writer = WRITER.lock();
+        
+        writeln!(writer, "{output}");
+        for (i, c) in output.chars().enumerate() {
+            let screen_char: ScreenChar =
+                unsafe { read_volatile(&writer.buffer.chars[BUFFER_HEIGHT - 2][i] as *const _) };
 
-    for (i, c) in output.chars().enumerate() {
-        let screen_char: ScreenChar =
-            unsafe { read_volatile(&WRITER.lock().buffer.chars[BUFFER_HEIGHT - 2][i] as *const _) };
-
-        assert_eq!(char::from(screen_char.ascii_code), c);
-    }
+            assert_eq!(char::from(screen_char.ascii_code), c);
+        }
+    });
 }
