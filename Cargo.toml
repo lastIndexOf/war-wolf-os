@@ -27,7 +27,8 @@ lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 spin = "0.9.8"
 x86_64 = "0.14.11"
 uart_16550 = "0.3.0"
-pic8259 = "0.10.1"
+pic8259 = "0.10.4"
+pc-keyboard = "0.7.0"
 
 [package.metadata.bootimage]
 test-args = [
