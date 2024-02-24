@@ -6,6 +6,7 @@
 
 mod panic;
 
+use wolf_os::hit_loop;
 #[cfg(not(test))]
 use wolf_os::println;
 
@@ -26,7 +27,7 @@ pub extern "C" fn _start() -> ! {
     #[cfg(test)]
     _test_main();
 
-    loop {}
+    hit_loop();
 }
 
 #[cfg(test)]

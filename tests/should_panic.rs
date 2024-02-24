@@ -9,7 +9,7 @@
 use core::{panic::PanicInfo, ptr::read_volatile};
 
 use wolf_os::{
-    _exit_qemu, serial_print, serial_println,
+    _exit_qemu, hit_loop, serial_print, serial_println,
     vga_buffer::{ScreenChar, BUFFER_HEIGHT, WRITER},
     QemuExitCode, Testable,
 };
@@ -21,7 +21,7 @@ pub extern "C" fn _start() -> ! {
     serial_println!("[test did not panic]");
     _exit_qemu(QemuExitCode::Failed);
 
-    loop {}
+    hit_loop();
 }
 
 fn should_panic() {
@@ -37,5 +37,5 @@ fn panic(info: &PanicInfo) -> ! {
     // 对于多个 #[test_case] 函数，它只会执行第一个函数，因为程序无法在panic处理被调用后继续执行。
     _exit_qemu(QemuExitCode::Success);
 
-    loop {}
+    hit_loop();
 }

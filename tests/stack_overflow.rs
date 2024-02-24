@@ -11,7 +11,7 @@ use core::{panic::PanicInfo, ptr::read_volatile};
 
 use lazy_static::lazy_static;
 use wolf_os::{
-    _exit_qemu,
+    _exit_qemu, hit_loop,
     interrupts::{self, tss::DEFAULT_DOUBLE_FAULT_STACK_INDEX},
     serial_print, serial_println,
     vga_buffer::{ScreenChar, BUFFER_HEIGHT, WRITER},
@@ -38,7 +38,7 @@ extern "x86-interrupt" fn test_double_fault_handler(
 ) -> ! {
     serial_println!("[ok]");
     _exit_qemu(QemuExitCode::Success);
-    loop {}
+    hit_loop();
 }
 
 pub fn init_test_idt() {

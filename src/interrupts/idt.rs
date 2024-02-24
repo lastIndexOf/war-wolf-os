@@ -69,6 +69,7 @@ use lazy_static::lazy_static;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
 use crate::{
+    hit_loop,
     interrupts::{
         pic::{HardwareInterruptIndex, PIC},
         tss::DEFAULT_DOUBLE_FAULT_STACK_INDEX,
@@ -109,7 +110,7 @@ extern "x86-interrupt" fn double_fault_handler(
 ) -> ! {
     println!("EXCEPTION: DOUBLE FAULT\n{:#?},", stack_frame);
 
-    loop {}
+    hit_loop();
 }
 
 extern "x86-interrupt" fn real_time_clock_interrupt_handler(_stack_frame: InterruptStackFrame) {

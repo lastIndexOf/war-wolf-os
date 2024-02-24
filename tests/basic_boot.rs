@@ -7,7 +7,7 @@
 use core::{ops::Deref, panic::PanicInfo, ptr::read_volatile};
 
 use wolf_os::{
-    println,
+    hit_loop, println,
     vga_buffer::{ScreenChar, BUFFER_HEIGHT, WRITER},
 };
 
@@ -15,7 +15,7 @@ use wolf_os::{
 pub extern "C" fn _start() -> ! {
     _test_main();
 
-    loop {}
+    hit_loop();
 }
 
 #[panic_handler]
@@ -30,7 +30,7 @@ fn test_correct_output_in_stdout_at_basic_boot() {
     let output = "stdout should show this line";
     x86_64::instructions::interrupts::without_interrupts(|| {
         let mut writer = WRITER.lock();
-        
+
         writeln!(writer, "{output}");
         for (i, c) in output.chars().enumerate() {
             let screen_char: ScreenChar =

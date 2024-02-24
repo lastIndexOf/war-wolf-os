@@ -3,17 +3,17 @@ use core::panic::PanicInfo;
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    use wolf_os::println;
+    use wolf_os::{hit_loop, println};
 
     println!("{}", info);
-    loop {}
+    hit_loop();
 }
 
 #[cfg(test)]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     use wolf_os::{
-        serial_println,
+        hit_loop, serial_println,
         tests::{QemuExitCode, _exit_qemu},
     };
 
@@ -21,5 +21,5 @@ fn panic(info: &PanicInfo) -> ! {
     serial_println!("Error: {}\n", info);
 
     _exit_qemu(QemuExitCode::Failed);
-    loop {}
+    hit_loop();
 }
