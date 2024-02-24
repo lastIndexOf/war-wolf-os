@@ -14,7 +14,8 @@ pub static PIC: Mutex<ChainedPics> =
 #[derive(Debug, Clone, Copy)]
 #[repr(u8)]
 pub enum HardwareInterruptIndex {
-    RealTimerClock = MAIN_PIC_OFFSET,
+    Timer = MAIN_PIC_OFFSET,
+    Keyboard,
 }
 
 impl HardwareInterruptIndex {

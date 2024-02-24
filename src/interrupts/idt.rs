@@ -66,7 +66,10 @@
 // 它可以保证在函数返回时，寄存器里的值均返回原样。
 // extern "x86-interrupt" fn();
 use lazy_static::lazy_static;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+use x86_64::{
+    instructions::port::Port,
+    structures::idt::{InterruptDescriptorTable, InterruptStackFrame},
+};
 
 use crate::{
     hit_loop,
@@ -77,12 +80,12 @@ use crate::{
     print, println,
 };
 
-// 不注册处理函数，又触发了对应的错误时触发的是 general protection fault
-// 如果不设置 double fault，x86_64 会在 double fault 时触发 triple fault，导致系统重启。
-// breakpoint fault interrupt handler
-// double fault interrupt handler
-// real time clock hardware interrupt handler
 lazy_static! {
+    /// 不注册处理函数，又触发了对应的错误时触发的是 general protection fault
+    /// 如果不设置 double fault，x86_64 会在 double fault 时触发 triple fault，导致系统重启。
+    /// breakpoint fault interrupt handler
+    /// double fault interrupt handler
+    /// real time clock hardware interrupt handler
     pub static ref IDT: InterruptDescriptorTable = {
         let mut idt = InterruptDescriptorTable::new();
         idt.breakpoint.set_handler_fn(breakpoint_handler);
@@ -93,8 +96,11 @@ lazy_static! {
                 .set_stack_index(DEFAULT_DOUBLE_FAULT_STACK_INDEX as u16);
         };
 
-        idt[HardwareInterruptIndex::RealTimerClock.as_usize()]
-            .set_handler_fn(real_time_clock_interrupt_handler);
+        idt[HardwareInterruptIndex::Timer.as_usize()]
+            .set_handler_fn(timer_interrupt_handler);
+
+        idt[HardwareInterruptIndex::Keyboard.as_usize()]
+            .set_handler_fn(keyboard_interrupt_handler);
 
         idt
     };
@@ -113,12 +119,24 @@ extern "x86-interrupt" fn double_fault_handler(
     hit_loop();
 }
 
-extern "x86-interrupt" fn real_time_clock_interrupt_handler(_stack_frame: InterruptStackFrame) {
+extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
     print!(".");
 
     unsafe {
         PIC.lock()
-            .notify_end_of_interrupt(HardwareInterruptIndex::RealTimerClock.as_u8());
+            .notify_end_of_interrupt(HardwareInterruptIndex::Timer.as_u8());
+    };
+}
+
+extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
+    let mut keyboard_metadata_port = Port::new(0x60);
+    let scan_code: u8 = unsafe { keyboard_metadata_port.read() };
+
+    print!("{}", scan_code);
+
+    unsafe {
+        PIC.lock()
+            .notify_end_of_interrupt(HardwareInterruptIndex::Keyboard.as_u8());
     };
 }
 
