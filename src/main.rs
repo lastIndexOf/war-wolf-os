@@ -22,6 +22,14 @@ pub extern "C" fn _start() -> ! {
 
     println!("System initialized!");
 
+    use x86_64::registers::control::Cr3;
+
+    let (level_4_page_table, _) = Cr3::read();
+    println!(
+        "Level 4 page table at: {:?}",
+        level_4_page_table.start_address()
+    );
+
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用
     #[cfg(test)]

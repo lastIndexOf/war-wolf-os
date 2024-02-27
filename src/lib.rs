@@ -11,6 +11,7 @@
 
 pub mod interrupts;
 pub mod macros;
+pub mod mem;
 pub mod serial;
 pub mod tests;
 pub mod vga_buffer;
