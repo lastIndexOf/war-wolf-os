@@ -6,6 +6,7 @@
 
 mod panic;
 
+use bootloader::{entry_point, BootInfo};
 use wolf_os::hit_loop;
 #[cfg(not(test))]
 use wolf_os::println;
@@ -16,8 +17,9 @@ use wolf_os::{
     tests::{QemuExitCode, Testable, _exit_qemu},
 };
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(kernel_main);
+
+fn kernel_main(_boot_info: &'static BootInfo) -> ! {
     wolf_os::init();
 
     println!("System initialized!");

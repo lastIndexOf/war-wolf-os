@@ -16,6 +16,7 @@ pub mod serial;
 pub mod tests;
 pub mod vga_buffer;
 
+use bootloader::{entry_point, BootInfo};
 pub use tests::*;
 
 use core::panic::PanicInfo;
@@ -53,8 +54,12 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
 }
 
 #[cfg(test)]
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+entry_point!(test_kernel_main);
+
+#[cfg(test)]
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
+    use bootloader::BootInfo;
+
     init();
     test_main();
     hit_loop();

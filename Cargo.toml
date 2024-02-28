@@ -22,7 +22,7 @@ harness = false
 
 [dependencies]
 # libc = { version = "0.2.150", default-features = false }
-bootloader = "0.9"
+bootloader = { version = "0.9", features = ["map_physical_memory"] }
 lazy_static = { version = "1.4.0", features = ["spin_no_std"] }
 spin = "0.9.8"
 x86_64 = "0.14.11"
