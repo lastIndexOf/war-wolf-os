@@ -3,9 +3,19 @@
 //! 1page (4kb) per page table
 //! 512 items per page table (4kb / item)
 
-use x86_64::{registers::control::Cr3, structures::paging::PageTable, PhysAddr, VirtAddr};
+use x86_64::{
+    registers::control::Cr3,
+    structures::paging::{OffsetPageTable, PageTable},
+    PhysAddr, VirtAddr,
+};
 
-pub unsafe fn get_l4_table(physical_memory_offset: VirtAddr) -> &'static mut PageTable {
+/// offset page table 是 x86_64 库抽象出来的基于偏移虚拟内存的完全物理内存映射的一个结构
+pub unsafe fn init_offset_page_table(physical_memory_offset: VirtAddr) -> OffsetPageTable<'static> {
+    let l4_table = unsafe { get_l4_table(physical_memory_offset) };
+    unsafe { OffsetPageTable::new(l4_table, physical_memory_offset) }
+}
+
+unsafe fn get_l4_table(physical_memory_offset: VirtAddr) -> &'static mut PageTable {
     let (l4_table_frame, _) = Cr3::read();
     let l4_table_phys_addr = l4_table_frame.start_address();
 
@@ -15,14 +25,14 @@ pub unsafe fn get_l4_table(physical_memory_offset: VirtAddr) -> &'static mut Pag
     unsafe { &mut *l4_table_ptr }
 }
 
-pub unsafe fn transform_vir_addr_to_phys_addr(
+pub unsafe fn translate_vir_addr_to_phys_addr(
     vir_addr: VirtAddr,
     physical_memory_offset: VirtAddr,
 ) -> Option<PhysAddr> {
-    transform_vir_addr_to_phys_addr_safe(vir_addr, physical_memory_offset)
+    translate_vir_addr_to_phys_addr_safe(vir_addr, physical_memory_offset)
 }
 
-fn transform_vir_addr_to_phys_addr_safe(
+fn translate_vir_addr_to_phys_addr_safe(
     vir_addr: VirtAddr,
     physical_memory_offset: VirtAddr,
 ) -> Option<PhysAddr> {

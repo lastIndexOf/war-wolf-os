@@ -6,17 +6,25 @@
 
 mod panic;
 
+use core::ptr::write_volatile;
+
 use bootloader::{entry_point, BootInfo};
 #[cfg(not(test))]
 use wolf_os::println;
-use wolf_os::{hit_loop, mem::page::get_l4_table};
+use wolf_os::{
+    hit_loop,
+    mem::{
+        mapping::{create_page_mapping_to_vga_buffer_example, EmptyFrameAllocator},
+        offset_page_mapper::init_offset_page_table,
+    },
+};
 
 #[cfg(test)]
 use wolf_os::{
     println, serial_println,
     tests::{QemuExitCode, Testable, _exit_qemu},
 };
-use x86_64::structures::paging::PageTable;
+use x86_64::{structures::paging::Page, VirtAddr};
 
 entry_point!(kernel_main);
 
@@ -25,26 +33,19 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
 
     println!("System initialized!");
 
-    let physical_memory_offset = x86_64::VirtAddr::new(boot_info.physical_memory_offset);
-    let l4_table = unsafe { get_l4_table(physical_memory_offset) };
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { init_offset_page_table(phys_mem_offset) };
 
-    for (idx, entry) in l4_table.iter().enumerate() {
-        if !entry.is_unused() {
-            // l4 page item data
-            println!("L4 Entry {}: {:?}", idx, entry);
+    let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
+    let mut allocator = EmptyFrameAllocator;
 
-            let l3_addr = physical_memory_offset + entry.frame().unwrap().start_address().as_u64();
-            let l3_ptr: *const PageTable = l3_addr.as_ptr();
-            let l3_table = unsafe { &*l3_ptr };
-
-            for (idx, entry) in l3_table.iter().enumerate() {
-                if !entry.is_unused() {
-                    // l3 page item data
-                    println!("L3 Entry {}: {:?}", idx, entry);
-                }
-            }
-        }
-    }
+    unsafe {
+        create_page_mapping_to_vga_buffer_example(page, &mut mapper, &mut allocator);
+        write_volatile(
+            page.start_address().as_mut_ptr::<u64>().offset(400),
+            0x_f021_f077_f065_f04e,
+        );
+    };
 
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用
