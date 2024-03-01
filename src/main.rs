@@ -14,7 +14,7 @@ use wolf_os::println;
 use wolf_os::{
     hit_loop,
     mem::{
-        mapping::{create_page_mapping_to_vga_buffer_example, EmptyFrameAllocator},
+        mapping::{create_page_mapping_to_vga_buffer_example, MappingFrameAllocator},
         offset_page_mapper::init_offset_page_table,
     },
 };
@@ -32,20 +32,6 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     wolf_os::init();
 
     println!("System initialized!");
-
-    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
-    let mut mapper = unsafe { init_offset_page_table(phys_mem_offset) };
-
-    let page = Page::containing_address(VirtAddr::new(0xdeadbeaf000));
-    let mut allocator = EmptyFrameAllocator;
-
-    unsafe {
-        create_page_mapping_to_vga_buffer_example(page, &mut mapper, &mut allocator);
-        write_volatile(
-            page.start_address().as_mut_ptr::<u64>().offset(400),
-            0x_f021_f077_f065_f04e,
-        );
-    };
 
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用

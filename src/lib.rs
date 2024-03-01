@@ -2,6 +2,7 @@
 // lib.rs 在测试的时候有一个隐式的 main 函数生成
 #![cfg_attr(test, no_main)]
 #![feature(abi_x86_interrupt)]
+#![feature(type_alias_impl_trait)]
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
