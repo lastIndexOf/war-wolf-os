@@ -9,7 +9,9 @@
 
 // lib.rs 和 main.rs 会被编译器当作两个不同的 crate。
 // cargo test 执行时， lib.rs 和 main.rs 也会分别去跑测试
+extern crate alloc;
 
+pub mod allocator;
 pub mod interrupts;
 pub mod macros;
 pub mod mem;
@@ -17,7 +19,6 @@ pub mod serial;
 pub mod tests;
 pub mod vga_buffer;
 
-use bootloader::{entry_point, BootInfo};
 pub use tests::*;
 
 use core::panic::PanicInfo;

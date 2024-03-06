@@ -44,3 +44,12 @@ pub struct ScreenChar {
 pub struct Buffer {
     pub chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
 }
+
+impl Buffer {
+    pub fn write_byte(&mut self, x: usize, y: usize, byte: u8, color: ColorCode) {
+        self.chars[y][x] = ScreenChar {
+            ascii_code: byte,
+            color_code: color,
+        };
+    }
+}

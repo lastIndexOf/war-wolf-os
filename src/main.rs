@@ -6,32 +6,28 @@
 
 mod panic;
 
-use core::ptr::write_volatile;
+extern crate alloc;
 
+use alloc::boxed::Box;
 use bootloader::{entry_point, BootInfo};
+use wolf_os::hit_loop;
+
 #[cfg(not(test))]
 use wolf_os::println;
-use wolf_os::{
-    hit_loop,
-    mem::{
-        mapping::{create_page_mapping_to_vga_buffer_example, MappingFrameAllocator},
-        offset_page_mapper::init_offset_page_table,
-    },
-};
 
 #[cfg(test)]
 use wolf_os::{
     println, serial_println,
     tests::{QemuExitCode, Testable, _exit_qemu},
 };
-use x86_64::{structures::paging::Page, VirtAddr};
 
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     wolf_os::init();
-
     println!("System initialized!");
+
+    let b = Box::new(1);
 
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用
