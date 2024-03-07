@@ -9,6 +9,8 @@
 
 // lib.rs 和 main.rs 会被编译器当作两个不同的 crate。
 // cargo test 执行时， lib.rs 和 main.rs 也会分别去跑测试
+#[allow(unused_imports)]
+#[macro_use]
 extern crate alloc;
 
 pub mod allocator;
@@ -54,6 +56,9 @@ pub fn test_panic_handler(info: &PanicInfo) -> ! {
     _exit_qemu(QemuExitCode::Failed);
     hit_loop();
 }
+
+#[cfg(test)]
+use bootloader::{entry_point, BootInfo};
 
 #[cfg(test)]
 entry_point!(test_kernel_main);

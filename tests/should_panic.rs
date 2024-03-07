@@ -8,19 +8,20 @@
 
 use core::{panic::PanicInfo, ptr::read_volatile};
 
+use bootloader::{entry_point, BootInfo};
 use wolf_os::{
     _exit_qemu, hit_loop, serial_print, serial_println,
     vga_buffer::{ScreenChar, BUFFER_HEIGHT, WRITER},
     QemuExitCode, Testable,
 };
 
-#[no_mangle] // don't mangle the name of this function
-pub extern "C" fn _start() -> ! {
+entry_point!(main);
+
+fn main(_boot_info: &'static BootInfo) -> ! {
     // 这个集成测试是测试的需要 panic 的一些功能，因此 test() 运行不能正常闭合，需要出发 panic_handler
     should_panic();
     serial_println!("[test did not panic]");
     _exit_qemu(QemuExitCode::Failed);
-
     hit_loop();
 }
 

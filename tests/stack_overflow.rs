@@ -9,6 +9,7 @@
 
 use core::{panic::PanicInfo, ptr::read_volatile};
 
+use bootloader::{entry_point, BootInfo};
 use lazy_static::lazy_static;
 use wolf_os::{
     _exit_qemu, hit_loop,
@@ -45,8 +46,9 @@ pub fn init_test_idt() {
     TEST_IDT.load();
 }
 
-#[no_mangle] // don't mangle the name of this function
-pub extern "C" fn _start() -> ! {
+entry_point!(main);
+
+fn main(_boot_info: &'static BootInfo) -> ! {
     serial_print!("running stack_overflow::stack_overflow...\t");
 
     interrupts::gdt::init();

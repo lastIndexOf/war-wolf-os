@@ -6,15 +6,16 @@
 
 use core::{ops::Deref, panic::PanicInfo, ptr::read_volatile};
 
+use bootloader::{entry_point, BootInfo};
 use wolf_os::{
     hit_loop, println,
     vga_buffer::{ScreenChar, BUFFER_HEIGHT, WRITER},
 };
 
-#[no_mangle] // don't mangle the name of this function
-pub extern "C" fn _start() -> ! {
-    _test_main();
+entry_point!(main);
 
+fn main(_boot_info: &'static BootInfo) -> ! {
+    _test_main();
     hit_loop();
 }
 
