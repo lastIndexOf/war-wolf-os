@@ -6,9 +6,14 @@
 
 mod panic;
 
+#[macro_use]
 extern crate alloc;
 
-use alloc::boxed::Box;
+use alloc::{
+    boxed::Box,
+    rc::Rc,
+    vec::{self, Vec},
+};
 use bootloader::{entry_point, BootInfo};
 use wolf_os::{
     hit_loop,
@@ -34,10 +39,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { init_offset_page_table(phys_mem_offset) };
     let mut allocator = unsafe { MappingFrameAllocator::new(&boot_info.memory_map) };
-    wolf_os::allocator::heap::init_heap(&mut mapper, &mut allocator)
-        .expect("heap initialization failed");
-
-    let b = Box::new(1);
+    wolf_os::mem::heap::init_heap(&mut mapper, &mut allocator).expect("heap initialization failed");
 
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用

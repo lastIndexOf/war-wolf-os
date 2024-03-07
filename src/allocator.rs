@@ -1,7 +1,6 @@
-use self::dummy::DummyAllocator;
+use linked_list_allocator::LockedHeap;
 
 pub mod dummy;
-pub mod heap;
 
 #[global_allocator]
-static ALLOCATOR: DummyAllocator = DummyAllocator;
+pub static ALLOCATOR: LockedHeap = LockedHeap::empty();
