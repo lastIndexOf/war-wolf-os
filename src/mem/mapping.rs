@@ -70,7 +70,7 @@ pub unsafe fn create_page_mapping_to_vga_buffer_example(
     let frame = PhysFrame::containing_address(PhysAddr::new(0xb8000));
     let flags = PageTableFlags::PRESENT | PageTableFlags::WRITABLE;
 
-    // FIXME: no safe, remove bottom
+    // FIXME: no safe, remove below
     let map_to_res =
         unsafe { offset_page_table.map_to(page, frame, flags, allocator) }.expect("map_to failed");
     map_to_res.flush();

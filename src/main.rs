@@ -10,7 +10,10 @@ extern crate alloc;
 
 use alloc::boxed::Box;
 use bootloader::{entry_point, BootInfo};
-use wolf_os::hit_loop;
+use wolf_os::{
+    hit_loop,
+    mem::{mapping::MappingFrameAllocator, offset_page_mapper::init_offset_page_table},
+};
 
 #[cfg(not(test))]
 use wolf_os::println;
@@ -20,12 +23,19 @@ use wolf_os::{
     println, serial_println,
     tests::{QemuExitCode, Testable, _exit_qemu},
 };
+use x86_64::VirtAddr;
 
 entry_point!(kernel_main);
 
 fn kernel_main(boot_info: &'static BootInfo) -> ! {
     wolf_os::init();
     println!("System initialized!");
+
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mut mapper = unsafe { init_offset_page_table(phys_mem_offset) };
+    let mut allocator = unsafe { MappingFrameAllocator::new(&boot_info.memory_map) };
+    wolf_os::allocator::heap::init_heap(&mut mapper, &mut allocator)
+        .expect("heap initialization failed");
 
     let b = Box::new(1);
 
