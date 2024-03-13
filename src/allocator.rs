@@ -4,6 +4,7 @@ use self::bump::BumpAllocator;
 
 pub mod bump;
 pub mod dummy;
+pub mod linked_list;
 
 #[global_allocator]
 pub static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());

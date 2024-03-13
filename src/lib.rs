@@ -1,6 +1,7 @@
 #![no_std]
 // lib.rs 在测试的时候有一个隐式的 main 函数生成
 #![cfg_attr(test, no_main)]
+#![feature(const_mut_refs)]
 #![feature(abi_x86_interrupt)]
 #![feature(type_alias_impl_trait)]
 #![feature(custom_test_frameworks)]
