@@ -6,14 +6,8 @@
 
 mod panic;
 
-#[macro_use]
 extern crate alloc;
 
-use alloc::{
-    boxed::Box,
-    rc::Rc,
-    vec::{self, Vec},
-};
 use bootloader::{entry_point, BootInfo};
 use wolf_os::{
     hit_loop,

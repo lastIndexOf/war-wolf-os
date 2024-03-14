@@ -1,8 +1,11 @@
-use core::ptr::NonNull;
+use core::{
+    ptr::NonNull,
+    sync::atomic::{AtomicU16, AtomicU32, Ordering},
+};
 
 use alloc::alloc::GlobalAlloc;
 
-use crate::allocator::align_up;
+use crate::{allocator::align_up, println};
 
 use super::Locked;
 
@@ -10,6 +13,9 @@ pub struct LinkedListAllocator {
     head: ListRegion,
 }
 
+unsafe impl Send for ListRegion {}
+
+#[derive(Debug)]
 struct ListRegion {
     /// The size of the this node
     size: usize,
@@ -60,7 +66,7 @@ impl LinkedListAllocator {
 
     unsafe fn add_free_region(&mut self, addr: usize, size: usize) {
         assert_eq!(align_up(addr, core::mem::align_of::<ListRegion>()), addr);
-        assert!(size > core::mem::size_of::<ListRegion>());
+        assert!(size >= core::mem::size_of::<ListRegion>());
 
         let mut region = ListRegion::new(size);
         region.next = self.head.next.take();
@@ -101,7 +107,8 @@ impl LinkedListAllocator {
             return Err(());
         }
 
-        if (region.end_addr() - alloc_end) < core::mem::size_of::<ListRegion>() {
+        let remainder_size = region.end_addr() - alloc_end;
+        if remainder_size > 0 && remainder_size < core::mem::size_of::<ListRegion>() {
             return Err(());
         }
 
@@ -118,7 +125,7 @@ unsafe impl GlobalAlloc for Locked<LinkedListAllocator> {
             let alloc_end = alloc_start.checked_add(size).expect("ptr overflow");
             let free_region_size = unsafe { (*region.as_ptr()).end_addr() } - alloc_end;
 
-            if free_region_size > core::mem::size_of::<ListRegion>() {
+            if free_region_size > 0 {
                 allocator.add_free_region(alloc_end, free_region_size);
             }
 
