@@ -1,15 +1,20 @@
 use spin::Mutex;
 
-use self::{bump::BumpAllocator, linked_list::LinkedListAllocator};
+use self::{
+    bump::BumpAllocator, fixed_size_block::FixedSizeAllocator, linked_list::LinkedListAllocator,
+};
 
-pub mod bump;
-pub mod dummy;
-pub mod linked_list;
+mod bump;
+mod dummy;
+mod fixed_size_block;
+mod linked_list;
 
 // #[global_allocator]
 // pub static ALLOCATOR: Locked<BumpAllocator> = Locked::new(BumpAllocator::new());
+// #[global_allocator]
+// pub static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
 #[global_allocator]
-pub static ALLOCATOR: Locked<LinkedListAllocator> = Locked::new(LinkedListAllocator::new());
+pub static ALLOCATOR: Locked<FixedSizeAllocator> = Locked::new(FixedSizeAllocator::new());
 
 pub struct Locked<T> {
     inner: Mutex<T>,

@@ -58,3 +58,12 @@ fn test_heap_auto_dealloc_and_reuse() {
         assert_eq!(*x, i);
     }
 }
+
+#[test_case]
+fn test_too_many_alloc() {
+    let not_release = Box::new(1);
+    for i in 0..(HEAP_SIZE + 100) {
+        let x = Box::new(i);
+        assert_eq!(*x, i);
+    }
+}
