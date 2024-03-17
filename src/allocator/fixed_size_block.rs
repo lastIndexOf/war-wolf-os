@@ -12,6 +12,7 @@ fn find_list_index_by_layout(layout: core::alloc::Layout) -> Option<usize> {
         .iter()
         .position(|&ele| ele >= required_block_size)
 }
+
 pub struct FixedSizeAllocator {
     heads: [Option<NonNull<ListRegion>>; BLOCK_SIZES.len()],
     fallback_allocator: linked_list_allocator::Heap,

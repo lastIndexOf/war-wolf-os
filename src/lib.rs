@@ -18,6 +18,7 @@ pub mod allocator;
 pub mod interrupts;
 pub mod macros;
 pub mod mem;
+pub mod multitasking;
 pub mod serial;
 pub mod tests;
 pub mod vga_buffer;
