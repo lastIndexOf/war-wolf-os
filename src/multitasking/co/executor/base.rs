@@ -36,12 +36,8 @@ fn raw_waker() -> RawWaker {
     fn clone(ptr: *const ()) -> RawWaker {
         raw_waker()
     }
-    fn wake(ptr: *const ()) {
-        todo!()
-    }
-    fn wake_by_ref(ptr: *const ()) {
-        todo!()
-    }
+    fn wake(ptr: *const ()) {}
+    fn wake_by_ref(ptr: *const ()) {}
 
     let vtable = &RawWakerVTable::new(clone, wake, wake_by_ref, drop);
     RawWaker::new(0 as *const (), vtable)

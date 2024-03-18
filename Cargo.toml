@@ -31,6 +31,13 @@ uart_16550 = "0.3.0"
 pic8259 = "0.10.4"
 pc-keyboard = "0.7.0"
 linked_list_allocator = "0.10.5"
+crossbeam-queue = { version = "0.3.11", default-features = false, features = [
+  "alloc",
+] }
+conquer-once = { version = "0.4.0", default-features = false }
+futures-util = { version = "0.3.30", default-features = false, features = [
+  "alloc",
+] }
 
 [package.metadata.bootimage]
 test-args = [

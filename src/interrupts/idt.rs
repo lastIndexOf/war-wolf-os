@@ -66,7 +66,6 @@
 /// 它可以保证在函数返回时，寄存器里的值均返回原样。
 /// extern "x86-interrupt" fn();
 use lazy_static::lazy_static;
-use pc_keyboard::DecodedKey;
 use x86_64::{
     instructions::port::Port,
     structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode},
@@ -75,11 +74,11 @@ use x86_64::{
 use crate::{
     hit_loop,
     interrupts::{
-        hdw::KEYBOARD,
         pic::{HardwareInterruptIndex, PIC},
         tss::DEFAULT_DOUBLE_FAULT_STACK_INDEX,
     },
-    print, println,
+    multitasking::co::task::keyboard::add_scan_code_to_queue,
+    println,
 };
 
 lazy_static! {
@@ -132,17 +131,10 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
 }
 
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    let mut keyboard = KEYBOARD.lock();
     let mut keyboard_metadata_port = Port::new(0x60);
     let scan_code: u8 = unsafe { keyboard_metadata_port.read() };
 
-    if let Ok(Some(event)) = keyboard.add_byte(scan_code) {
-        match keyboard.process_keyevent(event) {
-            Some(DecodedKey::Unicode(cr)) => print!("{}", cr),
-            Some(DecodedKey::RawKey(key)) => print!("{:?}", key),
-            _ => {}
-        }
-    };
+    add_scan_code_to_queue(scan_code);
 
     unsafe {
         PIC.lock()
