@@ -13,7 +13,7 @@ use wolf_os::{
     hit_loop,
     mem::{mapping::MappingFrameAllocator, offset_page_mapper::init_offset_page_table},
     multitasking::co::{
-        executor::base::BaseExecutor,
+        executor::Executor,
         task::{keyboard::print_keycode, Task},
     },
 };
@@ -43,17 +43,17 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut allocator = unsafe { MappingFrameAllocator::new(&boot_info.memory_map) };
     wolf_os::mem::heap::init_heap(&mut mapper, &mut allocator).expect("heap initialization failed");
 
-    let mut executor = BaseExecutor::new();
-    executor.spawn(Task::new(print_keycode()));
-    executor.spawn(Task::new(async_number()));
-    executor.run();
-
     // cargo test 会生成一个默认的启动函数 main。
     // 在 no_main 环境下不会自动调用，因此需要主动调用
     #[cfg(test)]
     _test_main();
 
-    hit_loop();
+    let executor = Executor::new();
+    executor.spawn(print_keycode());
+    executor.spawn(async_number());
+    executor.run();
+
+    println!("after executor running");
 }
 
 #[cfg(test)]
