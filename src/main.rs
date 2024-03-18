@@ -43,14 +43,15 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut allocator = unsafe { MappingFrameAllocator::new(&boot_info.memory_map) };
     wolf_os::mem::heap::init_heap(&mut mapper, &mut allocator).expect("heap initialization failed");
 
-    // cargo test 会生成一个默认的启动函数 main。
-    // 在 no_main 环境下不会自动调用，因此需要主动调用
-    #[cfg(test)]
-    _test_main();
-
     let executor = Executor::new();
     executor.spawn(print_keycode());
     executor.spawn(async_number());
+    #[cfg(test)]
+    executor.spawn(async {
+        // cargo test 会生成一个默认的启动函数 main。
+        // 在 no_main 环境下不会自动调用，因此需要主动调用
+        _test_main();
+    });
     executor.run();
 
     println!("after executor running");
